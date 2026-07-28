@@ -1,0 +1,23 @@
+{
+  "name": "shopee-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for Shopee Open Platform API v2 - manage shop, list products, orders, price & stock",
+  "type": "module",
+  "bin": {
+    "shopee-mcp-server": "build/index.js"
+  },
+  "files": ["build"],
+  "scripts": {
+    "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', 0o755)\"",
+    "prepare": "npm run build",
+    "auth": "tsc && node build/get_token.js",
+    "start": "node build/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "@types/node": "^20.0.0"
+  }
+}
