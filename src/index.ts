@@ -26,11 +26,6 @@ let ACCESS_TOKEN = process.env.SHOPEE_ACCESS_TOKEN || "";
 let REFRESH_TOKEN = process.env.SHOPEE_REFRESH_TOKEN || "";
 const HOST = process.env.SHOPEE_HOST || "https://partner.shopeemobile.com";
 
-if (!PARTNER_ID || !PARTNER_KEY || !SHOP_ID || !ACCESS_TOKEN) {
-  console.error("Error: cần SHOPEE_PARTNER_ID, SHOPEE_PARTNER_KEY, SHOPEE_SHOP_ID, SHOPEE_ACCESS_TOKEN");
-  process.exit(1);
-}
-
 // ---------- Ký chữ ký HMAC-SHA256 ----------
 function sign(path: string, timestamp: number, useToken = true): string {
   const base = useToken
