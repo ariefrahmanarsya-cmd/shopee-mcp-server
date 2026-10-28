@@ -1,52 +1,52 @@
 # Shopee MCP Server
 
-MCP server cho **Shopee Open Platform API v2** — quản lý shop bán hàng: xem shop, sản phẩm, đơn hàng; **đăng bài sản phẩm**; cập nhật giá & tồn kho. Chạy dạng STDIO (npx từ GitHub), thiết kế để **ai cũng dùng được — chỉ cần điền thông tin shop, không sửa code**.
+MCP server untuk **Shopee Open Platform API v2** — kelola toko Shopee Indonesia: lihat toko, produk, pesanan; **listing produk baru**; update harga & stok. Berjalan via STDIO (npx dari GitHub), dirancang agar **siapa pun bisa pakai — cukup isi kredensial toko, tanpa ubah kode**.
 
-15 tools: `get_shop_info`, `get_item_list`, `get_item_base_info`, `get_category`, `get_attributes`, `upload_image`, `add_item`, `update_item`, `update_price`, `update_stock`, `unlist_item`, `get_channel_list`, `get_order_list`, `get_order_detail`.
+**15 tools:** `get_shop_info`, `get_item_list`, `get_item_base_info`, `get_category`, `get_attributes`, `upload_image`, `add_item`, `update_item`, `update_price`, `update_stock`, `unlist_item`, `get_channel_list`, `get_order_list`, `get_order_detail`.
 
 ---
 
-## PHẦN A — ĐĂNG KÝ SHOPEE OPEN PLATFORM (lấy credential)
+## BAGIAN A — DAFTAR SHOPEE OPEN PLATFORM (ambil kredensial)
 
-Bạn cần 5 thông tin: `partner_id`, `partner_key`, `shop_id`, `access_token`, `refresh_token`.
+Anda membutuhkan 5 informasi: `partner_id`, `partner_key`, `shop_id`, `access_token`, `refresh_token`.
 
-### A1. Tạo tài khoản & App
-1. Vào **https://open.shopee.com** → **Log In** → **Sign up** (dùng email doanh nghiệp).
-2. Vào **Console → App Management → App List → Create App**.
-3. Chọn loại tài khoản phù hợp (thường: **Seller** nếu bán hàng, hoặc **ISV** nếu làm dịch vụ cho nhiều shop).
-4. Điền tên app, mô tả, và **Redirect URL** (ví dụ `https://example.com/callback` — nhớ URL này, dùng ở bước OAuth).
-5. Sau khi tạo, mở app → lấy **Partner ID** (= App ID) và **Partner Key** (= Secret Key). Lưu Partner Key an toàn (Shopee ít hiện lại).
-6. Trong app, thêm quyền (API modules) cần dùng: **Shop, Product, Logistics, Order, MediaSpace**.
+### A1. Buat akun & App
+1. Buka **https://open.shopee.com** → **Log In** → **Sign up** (gunakan email bisnis).
+2. Masuk ke **Console → App Management → App List → Create App**.
+3. Pilih tipe akun yang sesuai (biasanya: **Seller** jika berjualan sendiri).
+4. Isi nama app, deskripsi, dan **Redirect URL** (contoh: `https://example.com/callback` — catat URL ini, digunakan di langkah OAuth).
+5. Setelah dibuat, buka app → catat **Partner ID** (= App ID) dan **Partner Key** (= Secret Key). Simpan Partner Key dengan aman.
+6. Di dalam app, tambahkan permission (API modules): **Shop, Product, Logistics, Order, MediaSpace**.
 
-> ⚠️ App mới thường phải chờ Shopee duyệt/kích hoạt các module ghi (đăng bài). Có thể test trước trên môi trường **test-stable** trước khi lên live.
+> ⚠️ App baru biasanya perlu disetujui Shopee terlebih dahulu untuk modul write (listing produk). Bisa tes lebih dulu di environment **test-stable** sebelum ke live.
 
-### A2. Uỷ quyền shop & lấy token (chạy 1 lần)
-Sau khi clone repo và build (Phần B), chạy công cụ lấy token:
+### A2. Otorisasi toko & ambil token (dijalankan 1 kali)
+Setelah clone repo dan build (Bagian B), jalankan tool pengambil token:
 ```bash
-# Bước 1 — sinh link uỷ quyền
+# Langkah 1 — buat link otorisasi
 SHOPEE_PARTNER_ID=123456 SHOPEE_PARTNER_KEY=shpk_xxx SHOPEE_REDIRECT_URL=https://example.com/callback \
   npm run auth -- link
 ```
-→ Mở link in ra, đăng nhập shop, bấm đồng ý. Shopee chuyển về Redirect URL kèm `?code=XXX&shop_id=YYY`.
+→ Buka link yang muncul, login ke toko, klik setuju. Shopee akan redirect ke Redirect URL dengan parameter `?code=XXX&shop_id=YYY`.
 ```bash
-# Bước 2 — đổi code lấy token
+# Langkah 2 — tukar code dengan token
 SHOPEE_PARTNER_ID=123456 SHOPEE_PARTNER_KEY=shpk_xxx \
   npm run auth -- token XXX YYY
 ```
-→ In ra `SHOPEE_SHOP_ID`, `SHOPEE_ACCESS_TOKEN`, `SHOPEE_REFRESH_TOKEN`. Copy 3 giá trị này.
+→ Akan menampilkan `SHOPEE_SHOP_ID`, `SHOPEE_ACCESS_TOKEN`, `SHOPEE_REFRESH_TOKEN`. Salin 3 nilai ini.
 
-*(access_token hết hạn ~4 giờ — MCP tự refresh bằng refresh_token, bạn không cần làm lại bước này.)*
+*(access_token expired ~4 jam — MCP otomatis refresh menggunakan refresh_token, Anda tidak perlu mengulangi langkah ini.)*
 
 ---
 
-## PHẦN B — CÀI & CHẠY
+## BAGIAN B — INSTALASI & MENJALANKAN
 
-### B1. Chạy trực tiếp từ GitHub bằng npx (khuyên dùng cho Evose)
-Không cần cài gì, npx tự build từ GitHub. Xem cấu hình import ở PHẦN C.
+### B1. Jalankan langsung dari GitHub via npx (direkomendasikan)
+Tidak perlu install apapun, npx otomatis build dari GitHub. Lihat konfigurasi di Bagian C.
 
-### B2. Chạy local (để test / lấy token)
+### B2. Jalankan lokal (untuk test / ambil token)
 ```bash
-git clone https://github.com/<user>/shopee-mcp-server.git
+git clone https://github.com/ariefrahmanarsya-cmd/shopee-mcp-server.git
 cd shopee-mcp-server
 npm install
 npm run build
@@ -54,15 +54,15 @@ npm run build
 
 ---
 
-## PHẦN C — TÍCH HỢP VÀO EVOSE (STDIO npx)
+## BAGIAN C — INTEGRASI KE BOB (IBM Bob AI)
 
-Vào Evose → thêm MCP mới → Import Configuration via JSON, dán:
+Buka Bob → Settings → MCP Servers → tambah konfigurasi berikut:
 ```json
 {
   "mcpServers": {
     "shopee": {
       "command": "npx",
-      "args": ["-y", "github:<user>/shopee-mcp-server"],
+      "args": ["-y", "github:ariefrahmanarsya-cmd/shopee-mcp-server"],
       "env": {
         "SHOPEE_PARTNER_ID": "123456",
         "SHOPEE_PARTNER_KEY": "shpk_xxxxxxxx",
@@ -74,27 +74,30 @@ Vào Evose → thêm MCP mới → Import Configuration via JSON, dán:
   }
 }
 ```
-Hoặc điền tay theo form: Server Type = **STDIO**, Command Tool = **npx**, Command Parameters = `-y github:<user>/shopee-mcp-server`, rồi thêm 5 Environment Variables ở trên. Execution Timeout để **120s** (lần đầu npx build hơi lâu).
-
-*(Thay `<user>` bằng GitHub username của bạn sau khi push repo lên.)*
+Execution Timeout: **120 detik** (build pertama via npx membutuhkan waktu lebih lama).
 
 ---
 
-## PHẦN D — QUY TRÌNH ĐĂNG BÀI (add_item) — làm đúng thứ tự
-Đăng bài Shopee phức tạp hơn Etsy, cần 4 bước:
-1. `get_category` → chọn `category_id` đúng ngành hàng.
-2. `get_attributes` với `category_id` đó → lấy các thuộc tính bắt buộc → chuẩn bị `attribute_list`.
-3. `upload_image` với URL ảnh → lấy `image_id` (làm nhiều lần cho nhiều ảnh).
-4. `get_channel_list` → lấy `logistics_channel_ids` shop đang bật.
-5. `add_item` với đủ: item_name, description, category_id, original_price, seller_stock, weight, image_id_list, logistics_channel_ids, attribute_list.
+## BAGIAN D — ALUR LISTING PRODUK (add_item) — ikuti urutan ini
+Listing produk di Shopee memerlukan 4 langkah berurutan:
+1. `get_category` → pilih `category_id` yang sesuai kategori produk.
+2. `get_attributes` dengan `category_id` tersebut → ambil atribut wajib → siapkan `attribute_list`.
+3. `upload_image` dengan URL foto → dapatkan `image_id` (ulangi untuk setiap foto).
+4. `get_channel_list` → dapatkan `logistics_channel_ids` yang aktif di toko.
+5. `add_item` dengan semua data: item_name, description, category_id, original_price, seller_stock, weight, image_id_list, logistics_channel_ids, attribute_list.
 
 ---
 
-## GHI CHÚ QUAN TRỌNG
-- **Host:** live = `https://partner.shopeemobile.com`. Test = `https://partner.test-stable.shopeemobile.com` (đặt qua env `SHOPEE_HOST`).
-- **Vùng:** cấu hình này cho shop **Việt Nam**.
-- **Bảo mật:** không commit Partner Key / token lên GitHub công khai. Chỉ để trong env khi chạy.
-- MCP tự tính chữ ký HMAC-SHA256 và tự refresh token — người dùng không cần bận tâm.
+## CATATAN PENTING
+- **Host:** live = `https://partner.shopeemobile.com`. Test = `https://partner.test-stable.shopeemobile.com` (set via env `SHOPEE_HOST`).
+- **Region:** konfigurasi ini untuk toko **Indonesia**. Bahasa default kategori: `id`.
+- **Rate Limit:** MCP otomatis retry hingga 3x dengan exponential backoff jika terkena rate limit (HTTP 429). Bisa dikonfigurasi via `SHOPEE_MAX_RETRIES`.
+- **Keamanan:** jangan commit Partner Key / token ke GitHub publik. Simpan hanya di env saat menjalankan.
+- MCP otomatis menghitung signature HMAC-SHA256 dan refresh token — pengguna tidak perlu khawatir.
+
+## Changelog
+- **v1.1.0** — Rate limit retry (HTTP 429 + exponential backoff), bahasa default Indonesia (`id`), README Bahasa Indonesia
+- **v1.0.0** — Rilis awal (fork dari Maz1n0-zzz/shopee-mcp-server)
 
 ## License
 MIT
